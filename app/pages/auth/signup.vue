@@ -150,7 +150,11 @@ const handleSignup = async () => {
   validateName(); validateEmail(); validatePassword(); validateConfirm()
   if (Object.values(errors).some(e => e)) return
   const ok = await authStore.signup(form.name, form.email, form.password)
-  if (ok) await navigateTo('/dashboard')
+  if (ok) {
+    await navigateTo('/dashboard')
+  } else if (authStore.error === 'EMAIL_ALREADY_EXISTS') {
+    errors.email = t('errors.email_taken')
+  }
 }
 </script>
 

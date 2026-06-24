@@ -70,6 +70,29 @@ const clearResetToken = (token: string) => {
   if (process.client) localStorage.removeItem(`${RESET_PREFIX}${token}`)
 }
 
+// ── Compte administrateur pré-configuré ───────────────────────────────────────
+const ADMIN_EMAILS = ['admin@findme.app', 'admin@geolink.africa']
+
+const isAdminEmail = (email: string) =>
+  ADMIN_EMAILS.includes(email.toLowerCase()) || email.toLowerCase().startsWith('admin')
+
+const seedAdminAccount = () => {
+  if (!process.client) return
+  const users = getLocalUsers()
+  const adminEmail = 'admin@findme.app'
+  if (!users.find((u: any) => u.email === adminEmail)) {
+    users.push({
+      id: 'admin-001',
+      name: 'Administrateur findMe',
+      email: adminEmail,
+      passwordKey: pwKey(adminEmail, 'Admin2026!'),
+      role: 'admin',
+      createdAt: new Date().toISOString(),
+    })
+    localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users))
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const useAuthStore = defineStore('auth', () => {
@@ -96,6 +119,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const restoreSession = () => {
     if (!process.client) return
+    seedAdminAccount()
     try {
       const t = localStorage.getItem('findme_token')
       const u = localStorage.getItem('findme_user')
@@ -112,12 +136,12 @@ export const useAuthStore = defineStore('auth', () => {
     return user
   }
 
-  // POST /auth/login — vérifie le registre local d'abord, puis l'API mock
+  // POST /auth/login — registre local strict, API mock réservée aux comptes admin
   const login = async (email: string, password: string): Promise<boolean> => {
     loading.value = true
     error.value = null
     try {
-      // 1. Vérifier le registre local (utilisateurs inscrits dans l'app)
+      // 1. Bon email + bon mot de passe dans le registre local → connexion
       const localUser = findLocalUser(email, password)
       if (localUser) {
         const user = resolveRole({ ...localUser }, email)
@@ -131,7 +155,22 @@ export const useAuthStore = defineStore('auth', () => {
         return true
       }
 
-      // 2. Fallback vers l'API mock (pour les tests sans inscription préalable)
+      // 2. Email trouvé localement mais mauvais mot de passe → bloquer
+      const emailRegistered = getLocalUsers().some((u: any) => u.email === email)
+      if (emailRegistered) {
+        error.value = 'INVALID_CREDENTIALS'
+        showToast(tr('errors.invalid_credentials'), 'error')
+        return false
+      }
+
+      // 3. Email non enregistré et non-admin → bloquer (ne pas laisser le mock accepter)
+      if (!isAdminEmail(email)) {
+        error.value = 'INVALID_CREDENTIALS'
+        showToast(tr('errors.invalid_credentials'), 'error')
+        return false
+      }
+
+      // 4. Email admin uniquement → fallback API mock (mode démo)
       const res = await $fetch<any>(`${api}/auth/login`, {
         method: 'POST',
         body: { email, password },
