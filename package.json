@@ -1,17 +1,35 @@
 {
   "name": "findme",
-  "type": "module",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "mock": "json-server --watch mock-server/db.json --port 3001 --host localhost",
+    "dev:full": "concurrently \"npm run dev\" \"npm run mock\"",
+    "typecheck": "nuxt typecheck"
   },
   "dependencies": {
-    "nuxt": "^4.4.7",
-    "vue": "^3.5.35",
-    "vue-router": "^5.1.0"
+    "@nuxtjs/color-mode": "^3.5.2",
+    "@nuxtjs/i18n": "^9.5.4",
+    "@pinia/nuxt": "^0.10.1",
+    "@types/leaflet": "^1.9.21",
+    "jspdf": "^2.5.2",
+    "leaflet": "^1.9.4",
+    "nuxt": "^3.16.2",
+    "pinia": "^3.0.2",
+    "qrcode": "^1.5.4",
+    "resend": "^6.12.4",
+    "vue": "latest",
+    "vue-router": "latest"
+  },
+  "devDependencies": {
+    "@types/qrcode": "^1.5.5",
+    "concurrently": "^9.1.2",
+    "json-server": "^1.0.0-beta.3",
+    "typescript": "^5.8.3"
   }
 }
