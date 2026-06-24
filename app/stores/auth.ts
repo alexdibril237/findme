@@ -15,7 +15,7 @@ const tr = (key: string): string => {
 // ── Registre local d'utilisateurs ────────────────────────────────────────────
 // Stocké dans localStorage pour que login retourne le vrai nom de l'utilisateur
 const LOCAL_USERS_KEY = 'findme_local_users'
-const OTP_PREFIX = 'findme_otp_'
+const RESET_PREFIX = 'findme_reset_'
 
 const getLocalUsers = (): any[] => {
   if (!process.client) return []
@@ -48,27 +48,26 @@ const updateLocalPassword = (email: string, newPassword: string) => {
   }
 }
 
-// ── Stockage OTP côté client (localStorage) ────────────────────────────────
-// Pas besoin de serveur — le code est généré et vérifié localement
-const storeOtp = (email: string, otp: string) => {
+// ── Stockage token de réinitialisation (localStorage, 1h TTL) ─────────────
+const storeResetToken = (email: string, token: string) => {
   if (!process.client) return
-  const expiry = Date.now() + 15 * 60 * 1000 // 15 min
-  localStorage.setItem(`${OTP_PREFIX}${email}`, JSON.stringify({ otp, expiry }))
+  const expiry = Date.now() + 60 * 60 * 1000 // 1h
+  localStorage.setItem(`${RESET_PREFIX}${token}`, JSON.stringify({ email, expiry }))
 }
 
-const verifyOtp = (email: string, code: string): boolean => {
-  if (!process.client) return false
+const verifyResetToken = (token: string): string | null => {
+  if (!process.client) return null
   try {
-    const raw = localStorage.getItem(`${OTP_PREFIX}${email}`)
-    if (!raw) return false
-    const { otp, expiry } = JSON.parse(raw)
-    if (Date.now() > expiry) { localStorage.removeItem(`${OTP_PREFIX}${email}`); return false }
-    return otp === code.trim()
-  } catch { return false }
+    const raw = localStorage.getItem(`${RESET_PREFIX}${token}`)
+    if (!raw) return null
+    const { email, expiry } = JSON.parse(raw)
+    if (Date.now() > expiry) { localStorage.removeItem(`${RESET_PREFIX}${token}`); return null }
+    return email
+  } catch { return null }
 }
 
-const clearOtp = (email: string) => {
-  if (process.client) localStorage.removeItem(`${OTP_PREFIX}${email}`)
+const clearResetToken = (token: string) => {
+  if (process.client) localStorage.removeItem(`${RESET_PREFIX}${token}`)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -201,43 +200,45 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // Mot de passe oublié — génère un OTP côté client et le stocke dans localStorage
-  // L'OTP est affiché à l'écran (mode démo). Pour envoyer par email en production,
-  // configurer RESEND_API_KEY dans .env et activer les routes serveur.
-  const forgotPassword = async (email: string): Promise<{ ok: boolean; devOtp?: string }> => {
+  // Mot de passe oublié — génère un token sécurisé stocké dans localStorage
+  // En production, ce token serait envoyé par email via Resend.
+  // En mode démo, le lien est affiché à l'écran.
+  const forgotPassword = async (email: string): Promise<{ ok: boolean; devToken?: string }> => {
     loading.value = true
     error.value = null
     try {
-      const otp = Math.floor(100000 + Math.random() * 900000).toString()
-      storeOtp(email, otp)
+      const token = (typeof crypto !== 'undefined' && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : Math.random().toString(36).slice(2) + Date.now().toString(36)
+      storeResetToken(email, token)
 
-      // Tenter d'appeler l'API pour envoyer un email (si le serveur est configuré)
+      // Tenter d'appeler l'API (si Resend est configuré, l'email est envoyé)
       try {
-        const res = await $fetch<any>(`${api}/auth/forgot-password`, {
+        await $fetch<any>(`${api}/auth/forgot-password`, {
           method: 'POST',
-          body: { email, otp },
+          body: { email },
         })
-        // Si l'API renvoie un devOtp, l'afficher ; sinon l'email a été envoyé
-        return { ok: true, devOtp: res.devOtp || undefined }
+        return { ok: true } // email envoyé par le service réel
       } catch {
-        // L'API mock ne supporte pas l'envoi d'email → afficher l'OTP à l'écran
-        return { ok: true, devOtp: otp }
+        // Mode démo : renvoyer le token pour afficher le lien à l'écran
+        return { ok: true, devToken: token }
       }
     } finally {
       loading.value = false
     }
   }
 
-  // Vérifier l'OTP + changer le mot de passe (100% localStorage, aucun serveur)
-  const resetPassword = async (email: string, otp: string, newPassword: string): Promise<boolean> => {
+  // Valider le token de réinitialisation + changer le mot de passe
+  const resetPassword = async (token: string, newPassword: string): Promise<boolean> => {
     loading.value = true
     error.value = null
     try {
-      if (!verifyOtp(email, otp)) {
-        showToast(tr('errors.otp_invalid'), 'error')
+      const email = verifyResetToken(token)
+      if (!email) {
+        showToast(tr('errors.token_expired'), 'error')
         return false
       }
-      clearOtp(email)
+      clearResetToken(token)
       updateLocalPassword(email, newPassword)
       showToast(tr('auth.reset.success'), 'success')
       return true

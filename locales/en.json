@@ -42,15 +42,13 @@
     },
     "forgot": {
       "title": "Forgot password",
-      "subtitle": "Enter your email to receive a reset code",
+      "subtitle": "Enter your email to receive a reset link",
       "email": "Email address",
-      "submit": "Send code",
+      "submit": "Send reset link",
       "back": "Back to sign in",
-      "success": "Code sent! Check your inbox.",
-      "code_sent": "Code sent to",
-      "otp_label": "6-digit code",
-      "otp_format": "The code must be 6 digits",
-      "resend": "Resend code"
+      "success": "Link sent!",
+      "link_sent": "A password reset link has been sent to",
+      "dev_link": "Demo mode — Click the link to reset your password:"
     },
     "reset": {
       "title": "New password",
@@ -58,7 +56,9 @@
       "password": "New password",
       "confirm": "Confirm password",
       "submit": "Reset password",
-      "success": "Password reset successfully"
+      "success": "Password reset successfully",
+      "invalid_token_title": "Invalid link",
+      "invalid_token": "This reset link is invalid or has expired. Please request a new one."
     }
   },
   "validation": {

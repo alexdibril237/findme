@@ -42,15 +42,13 @@
     },
     "forgot": {
       "title": "Mot de passe oublié",
-      "subtitle": "Entrez votre email pour recevoir un code de réinitialisation",
+      "subtitle": "Entrez votre email pour recevoir un lien de réinitialisation",
       "email": "Adresse email",
-      "submit": "Envoyer le code",
+      "submit": "Envoyer le lien",
       "back": "Retour à la connexion",
-      "success": "Code envoyé ! Vérifiez votre boîte mail.",
-      "code_sent": "Code envoyé à",
-      "otp_label": "Code à 6 chiffres",
-      "otp_format": "Le code doit contenir 6 chiffres",
-      "resend": "Renvoyer le code"
+      "success": "Lien envoyé !",
+      "link_sent": "Un lien de réinitialisation a été envoyé à",
+      "dev_link": "Mode démo — Cliquez sur le lien pour réinitialiser :"
     },
     "reset": {
       "title": "Nouveau mot de passe",
@@ -58,7 +56,9 @@
       "password": "Nouveau mot de passe",
       "confirm": "Confirmer le mot de passe",
       "submit": "Réinitialiser",
-      "success": "Mot de passe réinitialisé avec succès"
+      "success": "Mot de passe réinitialisé avec succès",
+      "invalid_token_title": "Lien invalide",
+      "invalid_token": "Ce lien de réinitialisation est invalide ou a expiré. Veuillez faire une nouvelle demande."
     }
   },
   "validation": {

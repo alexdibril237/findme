@@ -12,8 +12,8 @@
           <span class="logo-text">find<span>Me</span></span>
         </NuxtLink>
         <div class="brand-hero">
-          <h1>{{ step === 'otp' ? $t('auth.reset.title') : $t('auth.forgot.title') }}</h1>
-          <p>{{ step === 'otp' ? $t('auth.reset.subtitle') : $t('auth.forgot.subtitle') }}</p>
+          <h1>{{ $t('auth.forgot.title') }}</h1>
+          <p>{{ $t('auth.forgot.subtitle') }}</p>
         </div>
       </div>
     </div>
@@ -28,7 +28,7 @@
             <p>{{ $t('auth.forgot.subtitle') }}</p>
           </div>
 
-          <form @submit.prevent="handleSendOtp" novalidate>
+          <form @submit.prevent="handleSendLink" novalidate>
             <div class="form-group">
               <label for="email" class="form-label">{{ $t('auth.forgot.email') }} <span class="required">*</span></label>
               <input id="email" v-model="email" type="email" class="form-input" :class="{ error: emailError }"
@@ -50,73 +50,32 @@
           </p>
         </template>
 
-        <!-- Étape 2 : saisir le code + nouveau mot de passe -->
-        <template v-else-if="step === 'otp'">
+        <!-- Étape 2 : lien envoyé -->
+        <template v-else-if="step === 'sent'">
+          <div class="sent-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <path d="m2 7 8.586 5.414a2 2 0 0 0 2.828 0L22 7"/>
+            </svg>
+          </div>
           <div class="form-header">
-            <h2>{{ $t('auth.reset.title') }}</h2>
-            <p class="sent-to">
-              {{ $t('auth.forgot.code_sent') }} <strong>{{ email }}</strong>
-            </p>
+            <h2>{{ $t('auth.forgot.success') }}</h2>
+            <p class="sent-to">{{ $t('auth.forgot.link_sent') }} <strong>{{ email }}</strong></p>
           </div>
 
-          <!-- Badge dev mode (affiché quand pas de clé Resend) -->
-          <div v-if="devOtp" class="dev-badge">
+          <!-- Badge démo : lien cliquable affiché à l'écran -->
+          <div v-if="devLink" class="dev-badge">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
-            Mode dev — Code OTP : <strong>{{ devOtp }}</strong>
+            <span>{{ $t('auth.forgot.dev_link') }}</span>
+            <NuxtLink :to="devLink" class="dev-link">{{ $t('auth.reset.title') }} →</NuxtLink>
           </div>
 
-          <form @submit.prevent="handleVerify" novalidate>
-            <div class="form-group">
-              <label for="otp" class="form-label">{{ $t('auth.forgot.otp_label') }} <span class="required">*</span></label>
-              <input id="otp" v-model="otpValue" type="text" class="form-input otp-input"
-                :class="{ error: otpError }" inputmode="numeric" maxlength="6"
-                autocomplete="one-time-code" required @blur="validateOtp"
-                placeholder="000000" aria-describedby="otp-err"/>
-              <p v-if="otpError" id="otp-err" class="form-error" role="alert">{{ otpError }}</p>
-            </div>
-
-            <div class="form-group">
-              <label for="password" class="form-label">{{ $t('auth.reset.password') }} <span class="required">*</span></label>
-              <div class="password-wrap">
-                <input id="password" v-model="newPassword" :type="showPwd ? 'text' : 'password'"
-                  class="form-input" :class="{ error: pwdError }"
-                  required @blur="validatePwd" autocomplete="new-password"/>
-                <button type="button" class="pwd-toggle" @click="showPwd = !showPwd" tabindex="-1">
-                  <svg v-if="!showPwd" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                  </svg>
-                  <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
-                  </svg>
-                </button>
-              </div>
-              <p v-if="pwdError" class="form-error" role="alert">{{ pwdError }}</p>
-            </div>
-
-            <div class="form-group">
-              <label for="confirm" class="form-label">{{ $t('auth.reset.confirm') }} <span class="required">*</span></label>
-              <input id="confirm" v-model="confirmPassword" type="password" class="form-input"
-                :class="{ error: confirmError }" required @blur="validateConfirm" autocomplete="new-password"/>
-              <p v-if="confirmError" class="form-error" role="alert">{{ confirmError }}</p>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-full" :disabled="authStore.loading">
-              <svg v-if="authStore.loading" class="animate-spin" width="18" height="18" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-              </svg>
-              {{ authStore.loading ? $t('common.loading') : $t('auth.reset.submit') }}
-            </button>
-          </form>
-
           <p class="auth-switch">
-            <button type="button" class="link-btn" :disabled="authStore.loading" @click="handleSendOtp">
-              {{ $t('auth.forgot.resend') }}
+            <button type="button" class="link-btn" @click="step = 'email'">
+              ← {{ $t('auth.forgot.back') }}
             </button>
-            ·
-            <NuxtLink to="/auth/login">{{ $t('auth.forgot.back') }}</NuxtLink>
           </p>
         </template>
 
@@ -129,7 +88,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useSeoMeta, navigateTo } from '#imports'
+import { useSeoMeta } from '#imports'
 import { useAuthStore } from '../../stores/auth'
 import Toast from '../../components/ui/Toast.vue'
 
@@ -140,62 +99,26 @@ const authStore = useAuthStore()
 
 useSeoMeta({ title: 'Mot de passe oublié — findMe' })
 
-// ── État ──────────────────────────────────────────────────
-const step = ref<'email' | 'otp'>('email')
+const step = ref<'email' | 'sent'>('email')
 const email = ref('')
 const emailError = ref('')
-const otpValue = ref('')
-const otpError = ref('')
-const newPassword = ref('')
-const pwdError = ref('')
-const confirmPassword = ref('')
-const confirmError = ref('')
-const showPwd = ref(false)
-const devOtp = ref('')
+const devLink = ref('')
 
-// ── Validations ───────────────────────────────────────────
 const validateEmail = () => {
   if (!email.value) emailError.value = t('validation.required')
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) emailError.value = t('validation.email_invalid')
   else emailError.value = ''
 }
 
-const validateOtp = () => {
-  if (!otpValue.value) otpError.value = t('validation.required')
-  else if (!/^\d{6}$/.test(otpValue.value)) otpError.value = t('auth.forgot.otp_format')
-  else otpError.value = ''
-}
-
-const validatePwd = () => {
-  if (!newPassword.value) pwdError.value = t('validation.required')
-  else if (newPassword.value.length < 8) pwdError.value = t('validation.password_min')
-  else pwdError.value = ''
-}
-
-const validateConfirm = () => {
-  if (!confirmPassword.value) confirmError.value = t('validation.required')
-  else if (newPassword.value !== confirmPassword.value) confirmError.value = t('validation.password_mismatch')
-  else confirmError.value = ''
-}
-
-// ── Envoyer le code OTP ────────────────────────────────────
-const handleSendOtp = async () => {
+const handleSendLink = async () => {
   validateEmail()
   if (emailError.value) return
   const result = await authStore.forgotPassword(email.value)
   if (result.ok) {
-    devOtp.value = result.devOtp || ''
-    step.value = 'otp'
-  }
-}
-
-// ── Vérifier OTP + changer le mot de passe ─────────────────
-const handleVerify = async () => {
-  validateOtp(); validatePwd(); validateConfirm()
-  if (otpError.value || pwdError.value || confirmError.value) return
-  const ok = await authStore.resetPassword(email.value, otpValue.value, newPassword.value)
-  if (ok) {
-    await navigateTo('/auth/login')
+    if (result.devToken) {
+      devLink.value = `/auth/reset-password?token=${result.devToken}`
+    }
+    step.value = 'sent'
   }
 }
 </script>
@@ -217,17 +140,15 @@ const handleVerify = async () => {
 .form-header h2 { font-size: 28px; margin-bottom: 8px; }
 .sent-to { color: var(--color-text-secondary); font-size: 14px; line-height: 1.6; }
 .required { color: var(--color-error); }
+.sent-icon { width: 72px; height: 72px; border-radius: 50%; background: rgba(24,95,165,0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 24px; color: var(--color-primary); }
 .auth-switch { text-align: center; margin-top: 20px; font-size: 14px; color: var(--color-text-secondary); display: flex; align-items: center; justify-content: center; gap: 8px; }
 .auth-switch a, .link-btn { color: var(--color-primary); text-decoration: none; font-weight: 500; background: none; border: none; cursor: pointer; font-size: inherit; padding: 0; }
-.link-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.otp-input { letter-spacing: 10px; font-size: 24px; font-weight: 700; text-align: center; font-family: var(--font-display); }
-.password-wrap { position: relative; }
-.pwd-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--color-text-tertiary); padding: 4px; display: flex; align-items: center; }
 .dev-badge {
-  display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+  display: flex; align-items: center; gap: 8px; padding: 12px 14px;
   background: #fffbeb; border: 1px solid #fcd34d; border-radius: var(--radius-md);
-  font-size: 13px; color: #92400e; margin-bottom: 20px;
+  font-size: 13px; color: #92400e; margin-bottom: 20px; flex-wrap: wrap;
 }
+.dev-link { color: var(--color-primary); font-weight: 600; text-decoration: underline; word-break: break-all; }
 @media (max-width: 768px) {
   .auth-page { flex-direction: column; }
   .auth-brand { width: 100%; padding: 24px; min-height: auto; }
