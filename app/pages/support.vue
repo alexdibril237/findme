@@ -90,22 +90,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useSeoMeta, useRuntimeConfig } from '#imports'
+import { useSeoMeta } from '#imports'
 import { useToast } from '../composables/useToast'
+import { useAuthStore } from '../stores/auth'
+import { useMessageStore } from '../stores/messages'
 
 definePageMeta({ middleware: 'auth', layout: 'dashboard' })
 useSeoMeta({ title: 'Support — findMe' })
 
 const { t } = useI18n()
-const config = useRuntimeConfig()
 const { showToast } = useToast()
+const authStore = useAuthStore()
+const msgStore = useMessageStore()
 
 const submitting = ref(false)
 const sent = ref(false)
 const form = reactive({ name: '', email: '', message: '' })
 const errors = reactive({ name: '', email: '', message: '' })
+
+onMounted(() => {
+  if (authStore.currentUser) {
+    form.name  = authStore.currentUser.name  || ''
+    form.email = authStore.currentUser.email || ''
+  }
+})
 
 const validateEmail = () => {
   if (!form.email) errors.email = t('validation.required')
@@ -123,15 +133,16 @@ const handleSubmit = async () => {
 
   submitting.value = true
   try {
-    // POST /support → { success, message, data: { ticketId } }
-    await $fetch(`${config.public.apiBase}/support`, {
-      method: 'POST',
-      body: { name: form.name, email: form.email, message: form.message },
-    })
-    sent.value = true
-    showToast(t('support.success'), 'success')
-  } catch {
-    showToast(t('errors.network'), 'error')
+    const firstLine = form.message.trim().split('\n')[0].slice(0, 80)
+    const subject = firstLine || t('support.title')
+    const body = `De : ${form.name} <${form.email}>\n\n${form.message}`
+    const ok = msgStore.sendToAdmin(subject, body)
+    if (ok) {
+      sent.value = true
+      showToast(t('support.success'), 'success')
+    } else {
+      showToast(t('errors.network'), 'error')
+    }
   } finally {
     submitting.value = false
   }

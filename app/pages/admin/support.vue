@@ -1,57 +1,44 @@
 ﻿<template>
   <div class="admin-page">
     <div class="page-header">
-      <h1>{{ $t('admin.tickets_title') }}</h1>
+      <h1>Tickets support</h1>
       <div class="filter-tabs">
-        <button class="tab-btn" :class="{ active: filterStatus === '' }" @click="filterStatus = ''">{{ $t('admin.ticket_all') }}</button>
-        <button class="tab-btn" :class="{ active: filterStatus === 'open' }" @click="filterStatus = 'open'">{{ $t('admin.ticket_open_tab') }}</button>
-        <button class="tab-btn" :class="{ active: filterStatus === 'resolved' }" @click="filterStatus = 'resolved'">{{ $t('admin.ticket_resolved_tab') }}</button>
+        <button class="tab-btn" :class="{ active: filterStatus === '' }" @click="filterStatus = ''">Tous</button>
+        <button class="tab-btn" :class="{ active: filterStatus === 'open' }" @click="filterStatus = 'open'">Non traités</button>
+        <button class="tab-btn" :class="{ active: filterStatus === 'resolved' }" @click="filterStatus = 'resolved'">Traités</button>
       </div>
     </div>
 
-    <div v-if="loading" class="tickets-list">
-      <div v-for="i in 4" :key="i" class="skeleton" style="height:100px;border-radius:12px;margin-bottom:12px"></div>
-    </div>
-
-    <div v-else-if="filtered.length === 0" class="empty-state">
+    <div v-if="filtered.length === 0" class="empty-state">
       <div class="empty-state-icon">📩</div>
-      <p>{{ $t('admin.empty_tickets') }}</p>
+      <p>Aucun ticket de support</p>
     </div>
 
     <div v-else class="tickets-list">
       <div v-for="ticket in filtered" :key="ticket.id" class="ticket-card card">
         <div class="ticket-header">
           <div>
-            <div class="ticket-name">{{ ticket.name || $t('admin.ticket_anonymous') }}</div>
-            <div class="ticket-email">{{ ticket.email }}</div>
+            <div class="ticket-name">{{ ticket.fromName || 'Anonyme' }}</div>
+            <div class="ticket-subject">{{ ticket.subject }}</div>
           </div>
           <div class="ticket-meta">
-            <span class="badge"
-              :class="ticket.status === 'resolved' ? 'badge-success' : 'badge-warning'">
-              {{ ticket.status === 'resolved' ? $t('admin.ticket.resolved') : $t('admin.ticket.open') }}
+            <span class="badge" :class="ticket.read ? 'badge-success' : 'badge-warning'">
+              {{ ticket.read ? 'Traité' : 'Non traité' }}
             </span>
             <span class="ticket-date">{{ formatDate(ticket.createdAt) }}</span>
           </div>
         </div>
-        <p class="ticket-message">{{ ticket.message }}</p>
+        <p class="ticket-message">{{ ticket.body }}</p>
         <div class="ticket-actions">
-          <button
-            v-if="ticket.status !== 'resolved'"
-            class="btn btn-secondary btn-sm"
-            @click="resolve(ticket.id)"
-            :disabled="resolving === ticket.id"
-          >
+          <button v-if="!ticket.read" class="btn btn-secondary btn-sm" @click="resolve(ticket.id)">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <polyline points="20 6 9 17 4 12"/>
             </svg>
-            {{ resolving === ticket.id ? $t('admin.ticket_processing') : $t('admin.ticket.mark_resolved') }}
+            Marquer traité
           </button>
-          <span v-else class="resolved-label">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0C6B3A" stroke-width="2.5">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-            {{ $t('admin.ticket.resolved') }}
-          </span>
+          <button v-else class="btn btn-ghost btn-sm" @click="reopen(ticket.id)">
+            Rouvrir
+          </button>
         </div>
       </div>
     </div>
@@ -60,56 +47,43 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useSeoMeta, useRuntimeConfig } from '#imports'
-import { useI18n } from 'vue-i18n'
+import { useSeoMeta } from '#imports'
+import { useMessageStore } from '../../stores/messages'
 import { useToast } from '../../composables/useToast'
 
 definePageMeta({ middleware: 'auth', layout: 'dashboard' })
-useSeoMeta({ title: 'Support — Admin findMe' })
+useSeoMeta({ title: 'Tickets support — Admin findMe' })
 
-const { t } = useI18n()
-const config = useRuntimeConfig()
+const msgStore = useMessageStore()
 const { showToast } = useToast()
-const loading = ref(true)
-const tickets = ref<any[]>([])
 const filterStatus = ref('')
-const resolving = ref<string | null>(null)
 
-onMounted(async () => {
-  const tok = process.client ? localStorage.getItem('findme_token') : null
-  try {
-    // GET /admin/support → { success, data: { tickets: [...] } }
-    const res = await $fetch<any>(`${config.public.apiBase}/admin/support?page=1&limit=50`, {
-      headers: tok ? { Authorization: `Bearer ${tok}` } : {},
-    })
-    tickets.value = res?.data?.tickets || []
-  } catch { tickets.value = [] }
-  finally { loading.value = false }
+onMounted(() => {
+  msgStore.fetchAdminInbox()
 })
 
-const filtered = computed(() => filterStatus.value
-  ? tickets.value.filter(t => t.status === filterStatus.value)
-  : tickets.value
+const tickets = computed(() => msgStore.adminInbox)
+
+const filtered = computed(() => filterStatus.value === 'resolved'
+  ? tickets.value.filter(t => t.read)
+  : filterStatus.value === 'open'
+    ? tickets.value.filter(t => !t.read)
+    : tickets.value
 )
 
-const resolve = async (id: string) => {
-  const tok = process.client ? localStorage.getItem('findme_token') : null
-  resolving.value = id
-  try {
-    // PATCH /admin/support/:id/status → { success, message, data: { id, status } }
-    await $fetch(`${config.public.apiBase}/admin/support/${id}/status`, {
-      method: 'PATCH',
-      headers: tok ? { Authorization: `Bearer ${tok}` } : {},
-      body: { status: 'resolved' },
-    })
-    const ticket = tickets.value.find(tk => tk.id === id)
-    if (ticket) ticket.status = 'resolved'
-    showToast(t('admin.ticket_mark_resolved_success'), 'success')
-  } catch {
-    showToast(t('errors.network'), 'error')
-  } finally {
-    resolving.value = null
+const resolve = (id: string) => {
+  msgStore.markAdminRead(id)
+  const msg = msgStore.adminInbox.find(m => m.id === id)
+  if (msg?.fromUserId) {
+    msgStore.sendToUser(msg.fromUserId, `Votre demande a été traitée : ${msg.subject}`,
+      `Bonjour,\n\nVotre demande "${msg.subject}" a été traitée par notre équipe.\n\nCordialement,\nL'équipe findMe`)
   }
+  showToast('Ticket marqué comme traité', 'success')
+}
+
+const reopen = (id: string) => {
+  msgStore.markAdminUnread(id)
+  showToast('Ticket rouvert', 'error')
 }
 
 const formatDate = (d: string) => d ? new Date(d).toLocaleDateString('fr-FR') : '—'

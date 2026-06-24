@@ -65,13 +65,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useSeoMeta, useRuntimeConfig } from '#imports'
+import { useSeoMeta } from '#imports'
 import StatusBadge from '../../components/ui/StatusBadge.vue'
 
 definePageMeta({ middleware: 'auth', layout: 'dashboard' })
 useSeoMeta({ title: 'Adresses — Admin findMe' })
 
-const config = useRuntimeConfig()
 const loading = ref(true)
 const addresses = ref<any[]>([])
 const search = ref('')
@@ -80,16 +79,23 @@ const filterCity = ref('')
 const page = ref(1)
 const perPage = 10
 
-onMounted(async () => {
-  const tok = process.client ? localStorage.getItem('findme_token') : null
+onMounted(() => {
+  if (!process.client) { loading.value = false; return }
   try {
-    // GET /admin/addresses → { success, data: { addresses: [...] } }
-    const res = await $fetch<any>(`${config.public.apiBase}/admin/addresses?page=1&limit=50`, {
-      headers: tok ? { Authorization: `Bearer ${tok}` } : {},
-    })
-    addresses.value = res?.data?.addresses || []
-  } catch { addresses.value = [] }
-  finally { loading.value = false }
+    const localUsersRaw = localStorage.getItem('findme_local_users')
+    const localUsers: any[] = localUsersRaw ? JSON.parse(localUsersRaw) : []
+    const result: any[] = []
+    for (const u of localUsers) {
+      const raw = localStorage.getItem(`findme_addresses_${u.id}`)
+      if (!raw) continue
+      JSON.parse(raw).forEach((a: any) => result.push({ ...a, _userId: u.id, _userName: u.name }))
+    }
+    addresses.value = result
+  } catch {
+    addresses.value = []
+  } finally {
+    loading.value = false
+  }
 })
 
 const cities = computed(() => [...new Set(addresses.value.map(a => a.city).filter(Boolean))])

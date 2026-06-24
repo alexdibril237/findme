@@ -2,15 +2,23 @@
   <div class="messages-page">
     <div class="page-header">
       <div>
-        <h1>Mes messages</h1>
+        <h1>{{ $t('messages_page.title') }}</h1>
         <p class="page-sub">
           <span v-if="msgStore.unreadCount > 0" class="unread-info">
-            {{ msgStore.unreadCount }} message(s) non lu(s)
+            {{ msgStore.unreadCount }} {{ $t('messages_page.unread') }}(s)
           </span>
-          <span v-else class="read-info">Tous les messages ont été lus</span>
+          <span v-else class="read-info">{{ $t('messages_page.inbox') }}</span>
         </p>
       </div>
-      <span class="badge badge-primary">{{ msgStore.messages.length }} total</span>
+      <div class="header-actions">
+        <button class="btn btn-primary btn-sm" @click="openCompose">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          {{ $t('messages_page.compose_btn') }}
+        </button>
+        <span class="badge badge-primary">{{ msgStore.messages.length }} total</span>
+      </div>
     </div>
 
     <!-- Skeleton -->
@@ -119,21 +127,79 @@
       <Transition name="fade">
         <div v-if="selected" class="read-overlay" @click="selected = null" aria-hidden="true"></div>
       </Transition>
+
+      <!-- ── Modal de composition ── -->
+      <Transition name="fade">
+        <div v-if="composing" class="compose-overlay" @click="composing = false" aria-hidden="true"></div>
+      </Transition>
+      <Transition name="compose-up">
+        <div v-if="composing" class="compose-modal card" role="dialog" :aria-label="$t('messages_page.compose_title')">
+          <div class="compose-header">
+            <span class="compose-title">{{ $t('messages_page.compose_title') }}</span>
+            <button class="btn btn-ghost btn-icon" @click="composing = false" :aria-label="$t('common.close')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          <div class="compose-body">
+            <div class="form-group">
+              <label class="form-label">{{ $t('messages_page.compose_subject') }}</label>
+              <input
+                v-model="composeForm.subject"
+                type="text"
+                class="form-input"
+                :placeholder="$t('messages_page.compose_placeholder_subject')"
+                maxlength="100"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">{{ $t('messages_page.compose_body') }}</label>
+              <textarea
+                v-model="composeForm.body"
+                class="form-input compose-textarea"
+                :placeholder="$t('messages_page.compose_placeholder_body')"
+                rows="5"
+                maxlength="2000"
+              ></textarea>
+            </div>
+          </div>
+          <div class="compose-footer">
+            <button class="btn btn-ghost btn-sm" @click="composing = false">{{ $t('common.cancel') }}</button>
+            <button
+              class="btn btn-primary btn-sm"
+              :disabled="!composeForm.subject.trim() || !composeForm.body.trim() || composeForm.sending"
+              @click="submitCompose"
+            >
+              <svg v-if="composeForm.sending" class="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+              </svg>
+              {{ $t('messages_page.compose_send') }}
+            </button>
+          </div>
+        </div>
+      </Transition>
     </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useSeoMeta } from '#imports'
+import { useI18n } from 'vue-i18n'
 import { useMessageStore } from '../../stores/messages'
+import { useToast } from '../../composables/useToast'
 import type { Message } from '../../stores/messages'
 
 definePageMeta({ middleware: 'auth', layout: 'dashboard' })
 useSeoMeta({ title: 'Messages — findMe' })
 
+const { t } = useI18n()
 const msgStore = useMessageStore()
-const selected = ref<Message | null>(null)
+const { showToast } = useToast()
+const selected  = ref<Message | null>(null)
+const composing = ref(false)
+const composeForm = reactive({ subject: '', body: '', sending: false })
 
 onMounted(() => {
   msgStore.fetchMessages()
@@ -142,6 +208,21 @@ onMounted(() => {
 const openMessage = (msg: Message) => {
   selected.value = msg
   msgStore.markRead(msg.id)
+}
+
+const openCompose = () => {
+  composeForm.subject = ''
+  composeForm.body    = ''
+  composing.value = true
+}
+
+const submitCompose = () => {
+  if (!composeForm.subject.trim() || !composeForm.body.trim()) return
+  composeForm.sending = true
+  const ok = msgStore.sendToAdmin(composeForm.subject.trim(), composeForm.body.trim())
+  composeForm.sending = false
+  composing.value = false
+  if (ok) showToast(t('messages_page.compose_success'), 'success')
 }
 
 const preview = (body: string) => {
@@ -266,9 +347,40 @@ const formatDateLong = (d: string) =>
 .fade-enter-active, .fade-leave-active { transition: opacity 200ms; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 
+.header-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+/* ── Compose modal ── */
+.compose-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4); z-index: 200;
+  backdrop-filter: blur(2px);
+}
+.compose-modal {
+  position: fixed; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(520px, calc(100vw - 32px));
+  z-index: 201; padding: 0; overflow: hidden;
+  box-shadow: var(--shadow-xl);
+}
+.compose-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid var(--color-border);
+}
+.compose-title { font-size: 15px; font-weight: 700; color: var(--color-text-primary); }
+.compose-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.compose-textarea { resize: vertical; min-height: 120px; }
+.compose-footer {
+  display: flex; justify-content: flex-end; gap: 8px;
+  padding: 14px 20px; border-top: 1px solid var(--color-border);
+}
+
+.compose-up-enter-active, .compose-up-leave-active { transition: all 220ms cubic-bezier(.4,0,.2,1); }
+.compose-up-enter-from, .compose-up-leave-to { opacity: 0; transform: translate(-50%, -48%) scale(.96); }
+
 @media (max-width: 640px) {
   .messages-page { padding: 16px; }
-  .page-header { flex-direction: column; }
+  .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .header-actions { width: 100%; justify-content: space-between; }
   .read-meta { flex-direction: column; }
 }
 </style>

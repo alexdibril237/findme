@@ -193,12 +193,13 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, reactive } from 'vue'
-import { useSeoMeta, useRuntimeConfig } from '#imports'
+import { useSeoMeta } from '#imports'
+import { useMessageStore } from '../../stores/messages'
 
 definePageMeta({ middleware: 'auth', layout: 'dashboard' })
 useSeoMeta({ title: 'Utilisateurs — Admin findMe' })
 
-const config = useRuntimeConfig()
+const msgStore = useMessageStore()
 const loading = ref(true)
 const users = ref<any[]>([])
 const search = ref('')
@@ -208,13 +209,26 @@ const filterRole = ref('')
 const page = ref(1)
 const perPage = 10
 
-onMounted(async () => {
-  const tok = process.client ? localStorage.getItem('findme_token') : null
+onMounted(() => {
+  if (!process.client) { loading.value = false; return }
   try {
-    const res = await $fetch<any>(`${config.public.apiBase}/admin/users?page=1&limit=50`, {
-      headers: tok ? { Authorization: `Bearer ${tok}` } : {},
+    const raw = localStorage.getItem('findme_local_users')
+    const localUsers: any[] = raw ? JSON.parse(raw) : []
+    users.value = localUsers.map(u => {
+      let addrCount = 0
+      try {
+        const r = localStorage.getItem(`findme_addresses_${u.id}`)
+        addrCount = r ? JSON.parse(r).length : 0
+      } catch {}
+      return {
+        id: u.id, name: u.name, email: u.email,
+        role: u.role || 'user', city: u.city || '',
+        country: u.country || '',
+        addressCount: addrCount,
+        createdAt: u.createdAt || new Date().toISOString(),
+        _local: true,
+      }
     })
-    users.value = res?.data?.users || []
   } catch {
     users.value = []
   } finally {
@@ -285,30 +299,12 @@ const openCompose = (user: any) => {
   compose.open = true
 }
 
-const sendMessage = async () => {
+const sendMessage = () => {
   if (!compose.subject.trim() || !compose.body.trim()) return
   compose.sending = true
-  const tok = process.client ? localStorage.getItem('findme_token') : null
-  try {
-    await $fetch(`${config.public.apiBase}/admin/messages`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(tok ? { Authorization: `Bearer ${tok}` } : {}),
-      },
-      body: {
-        userId: compose.user?.id,
-        subject: compose.subject,
-        message: compose.body,
-      },
-    })
-    compose.open = false
-  } catch {
-    // silently fail on mock — message is "sent"
-    compose.open = false
-  } finally {
-    compose.sending = false
-  }
+  msgStore.sendToUser(compose.user?.id, compose.subject, compose.body)
+  compose.sending = false
+  compose.open = false
 }
 </script>
 

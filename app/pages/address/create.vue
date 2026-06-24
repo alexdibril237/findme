@@ -234,6 +234,7 @@ import { useI18n } from 'vue-i18n'
 import { useSeoMeta, navigateTo } from '#imports'
 import { useAuthStore } from '../../stores/auth'
 import { useAddressStore } from '../../stores/address'
+import { useMessageStore } from '../../stores/messages'
 
 definePageMeta({ middleware: 'auth', layout: 'dashboard' })
 useSeoMeta({ title: 'Créer une adresse — findMe' })
@@ -241,6 +242,7 @@ useSeoMeta({ title: 'Créer une adresse — findMe' })
 const { t, locale } = useI18n()
 const authStore = useAuthStore()
 const addressStore = useAddressStore()
+const msgStore = useMessageStore()
 
 const currentStep = ref(1)
 const steps = computed(() => [
@@ -428,7 +430,7 @@ const compressImage = (file: File) => {
 
 const handleSubmit = async () => {
   try {
-    await addressStore.createAddress({
+    const newAddr = await addressStore.createAddress({
       label: form.label,
       country: form.country,
       countryCode: form.countryCode,
@@ -440,6 +442,15 @@ const handleSubmit = async () => {
       gps: form.gps,
       photo: form.photo,
     }, authStore.currentUser?.id || '')
+    // Notification automatique "en attente de vérification"
+    const userId = authStore.currentUser?.id
+    if (userId && newAddr) {
+      msgStore.sendToUser(
+        userId,
+        `Adresse "${newAddr.label}" reçue — en attente de vérification`,
+        `Bonjour,\n\nVotre adresse "${newAddr.label}" (code : ${newAddr.addressCode}) a bien été soumise.\n\nElle est actuellement en attente de vérification par notre équipe. Vous serez notifié(e) dès qu'elle sera validée.\n\nCordialement,\nL'équipe findMe`,
+      )
+    }
     await navigateTo('/dashboard')
   } catch {
     // Le toast est déjà affiché par le store

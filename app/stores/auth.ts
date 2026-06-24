@@ -250,17 +250,15 @@ export const useAuthStore = defineStore('auth', () => {
         : Math.random().toString(36).slice(2) + Date.now().toString(36)
       storeResetToken(email, token)
 
-      // Tenter d'appeler l'API (si Resend est configuré, l'email est envoyé)
+      // Appeler le handler local Nitro (Resend) — jamais le mock Postman
       try {
-        await $fetch<any>(`${api}/auth/forgot-password`, {
+        await $fetch<any>('/api/auth/forgot-password', {
           method: 'POST',
-          body: { email },
+          body: { email, token },
         })
-        return { ok: true } // email envoyé par le service réel
-      } catch {
-        // Mode démo : renvoyer le token pour afficher le lien à l'écran
-        return { ok: true, devToken: token }
-      }
+      } catch {}
+      // Toujours afficher le lien à l'écran en mode démo
+      return { ok: true, devToken: token }
     } finally {
       loading.value = false
     }

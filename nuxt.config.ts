@@ -66,6 +66,8 @@ export default defineNuxtConfig({
     },
   },
 
+  serverDir: 'server',
+
   nitro: {
     experimental: {
       openAPI: true,

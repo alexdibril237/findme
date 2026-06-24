@@ -1,45 +1,60 @@
 import { Resend } from 'resend'
 
 export default defineEventHandler(async (event) => {
-  const { email } = await readBody(event)
+  const { email, token } = await readBody(event)
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     throw createError({ statusCode: 400, statusMessage: 'Email invalide' })
   }
 
-  const otp = Math.floor(100000 + Math.random() * 900000).toString()
-  const expiry = Date.now() + 15 * 60 * 1000 // 15 min
+  if (!token) {
+    throw createError({ statusCode: 400, statusMessage: 'Token manquant' })
+  }
 
-  // Stocker l'OTP dans le cache Nitro (TTL 15 min)
-  await useStorage('cache').setItem(`otp:${email}`, { otp, expiry })
+  // Construire le lien de réinitialisation à partir de l'hôte de la requête
+  const host = getHeader(event, 'host') || 'localhost:3000'
+  const proto = host.startsWith('localhost') ? 'http' : 'https'
+  const resetLink = `${proto}://${host}/auth/reset-password?token=${token}`
 
-  const resendApiKey = process.env.RESEND_API_KEY || useRuntimeConfig().resendApiKey as string
+  const resendApiKey = process.env.RESEND_API_KEY || (useRuntimeConfig().resendApiKey as string)
 
   if (resendApiKey) {
     const resend = new Resend(resendApiKey)
     await resend.emails.send({
       from: 'findMe <onboarding@resend.dev>',
       to: email,
-      subject: 'Votre code de réinitialisation — findMe',
+      subject: 'Réinitialisez votre mot de passe — findMe',
       html: `
-        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#f9fafb;border-radius:12px;">
-          <div style="text-align:center;margin-bottom:24px;">
-            <span style="font-size:32px;font-weight:900;color:#185FA5;">find<span style="color:#5DCAA5;">Me</span></span>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;max-width:520px;margin:0 auto;padding:40px 32px;background:#f9fafb;border-radius:16px;">
+          <div style="text-align:center;margin-bottom:32px;">
+            <span style="font-size:28px;font-weight:900;color:#185FA5;letter-spacing:-1px;">find<span style="color:#5DCAA5;">Me</span></span>
           </div>
-          <h2 style="font-size:20px;color:#111827;margin-bottom:8px;">Réinitialisation de mot de passe</h2>
-          <p style="color:#6b7280;margin-bottom:24px;">Utilisez le code ci-dessous pour réinitialiser votre mot de passe. Ce code expire dans <strong>15 minutes</strong>.</p>
-          <div style="background:#185FA5;color:white;font-size:36px;font-weight:800;text-align:center;padding:24px;border-radius:8px;letter-spacing:12px;">
-            ${otp}
+          <h2 style="font-size:22px;color:#111827;margin-bottom:12px;font-weight:700;">Réinitialisation de mot de passe</h2>
+          <p style="color:#6b7280;font-size:15px;line-height:1.6;margin-bottom:28px;">
+            Vous avez demandé à réinitialiser votre mot de passe. Cliquez sur le bouton ci-dessous. Ce lien expire dans <strong>1 heure</strong>.
+          </p>
+          <div style="text-align:center;margin-bottom:28px;">
+            <a href="${resetLink}"
+               style="display:inline-block;background:#185FA5;color:white;font-size:15px;font-weight:700;
+                      text-decoration:none;padding:14px 32px;border-radius:9999px;">
+              Réinitialiser mon mot de passe
+            </a>
           </div>
-          <p style="color:#9ca3af;font-size:13px;margin-top:24px;">Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.</p>
-          <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;">
-          <p style="color:#9ca3af;font-size:12px;text-align:center;">© findMe by GeoLink Africa · Douala, Cameroun</p>
+          <p style="color:#9ca3af;font-size:13px;line-height:1.6;">
+            Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br/>
+            <a href="${resetLink}" style="color:#185FA5;word-break:break-all;">${resetLink}</a>
+          </p>
+          <hr style="border:none;border-top:1px solid #e5e7eb;margin:28px 0;">
+          <p style="color:#9ca3af;font-size:12px;text-align:center;">
+            Si vous n'avez pas fait cette demande, ignorez cet email.<br/>
+            © findMe by GeoLink Africa · Douala, Cameroun
+          </p>
         </div>
       `,
     })
-    return { success: true }
+    return { success: true, sent: true }
   }
 
-  // Mode développement : retourner l'OTP directement
-  return { success: true, devOtp: otp }
+  // Pas de clé Resend — mode démo uniquement
+  return { success: true, sent: false }
 })

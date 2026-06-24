@@ -272,7 +272,7 @@
     "new_message": "Nouveau message",
     "contact_title": "Nous contacter",
     "contact_email_label": "Email",
-    "contact_email": "support@findme.app",
+    "contact_email": "support{'@'}findme.app",
     "contact_hours_label": "Horaires",
     "contact_hours": "Lun–Ven, 8h–18h",
     "contact_response_label": "Délai de réponse",
