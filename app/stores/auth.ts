@@ -71,7 +71,7 @@ const clearResetToken = (token: string) => {
 }
 
 // ── Compte administrateur pré-configuré ───────────────────────────────────────
-const ADMIN_EMAILS = ['admin@findme.app', 'admin@geolink.africa']
+const ADMIN_EMAILS = ['adminfindme@gmail.com']
 
 const isAdminEmail = (email: string) =>
   ADMIN_EMAILS.includes(email.toLowerCase()) || email.toLowerCase().startsWith('admin')
@@ -79,7 +79,7 @@ const isAdminEmail = (email: string) =>
 const seedAdminAccount = () => {
   if (!process.client) return
   const users = getLocalUsers()
-  const adminEmail = 'admin@findme.app'
+  const adminEmail = 'adminfindme@gmail.com'
   if (!users.find((u: any) => u.email === adminEmail)) {
     users.push({
       id: 'admin-001',
@@ -129,8 +129,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const resolveRole = (user: any, email: string) => {
     if (user.role && user.role !== 'user') return user
-    const adminEmails = ['admin@findme.app', 'admin@geolink.africa']
-    if (adminEmails.includes(email.toLowerCase()) || email.toLowerCase().startsWith('admin')) {
+    if (ADMIN_EMAILS.includes(email.toLowerCase())) {
       return { ...user, role: 'admin' }
     }
     return user
