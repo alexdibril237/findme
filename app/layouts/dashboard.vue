@@ -28,7 +28,7 @@
           <div class="user-name">{{ authStore.currentUser?.name || 'Utilisateur' }}</div>
           <div class="user-role">
             <span class="role-badge" :class="authStore.isAdmin ? 'role-admin' : 'role-user'">
-              {{ authStore.isAdmin ? 'Administrateur' : 'Utilisateur' }}
+              {{ authStore.isAdmin ? $t('settings.role_admin') : $t('settings.role_user') }}
             </span>
           </div>
         </div>
@@ -43,7 +43,7 @@
             <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
             <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
           </svg>
-          Mes adresses
+          {{ $t('address.title') }}
           <span v-if="addressCount > 0" class="nav-badge">{{ addressCount }}/4</span>
         </NuxtLink>
 
@@ -61,7 +61,7 @@
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
             <polyline points="22,6 12,13 2,6"/>
           </svg>
-          Messages
+          {{ $t('messages_page.title') }}
           <span v-if="msgStore.unreadCount > 0" class="nav-badge nav-badge-alert">
             {{ msgStore.unreadCount }}
           </span>
@@ -100,20 +100,20 @@
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
               <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
             </svg>
-            Utilisateurs
+            {{ $t('admin.users') }}
           </NuxtLink>
           <NuxtLink to="/admin/addresses" class="nav-item nav-admin" :class="{ active: route.path === '/admin/addresses' }">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
             </svg>
-            Adresses
+            {{ $t('admin.addresses') }}
           </NuxtLink>
           <NuxtLink to="/admin/support" class="nav-item nav-admin" :class="{ active: route.path === '/admin/support' }">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <circle cx="12" cy="12" r="10"/>
               <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
             </svg>
-            Tickets support
+            {{ $t('admin.tickets_title') }}
           </NuxtLink>
         </template>
 
