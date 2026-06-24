@@ -140,7 +140,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, nextTick } from 'vue'
+import { ref, reactive, nextTick, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSeoMeta, navigateTo } from '#imports'
 import { useI18n } from 'vue-i18n'

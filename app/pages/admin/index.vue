@@ -275,7 +275,7 @@ const aPage = ref(1)
 
 onMounted(async () => {
   const tok = process.client ? localStorage.getItem('findme_token') : null
-  const headers = tok ? { Authorization: `Bearer ${tok}` } : {}
+  const headers: Record<string, string> = tok ? { Authorization: `Bearer ${tok}` } : {}
 
   // Stats
   try {

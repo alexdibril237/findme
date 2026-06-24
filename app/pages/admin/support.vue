@@ -62,7 +62,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useSeoMeta, useRuntimeConfig } from '#imports'
 import { useI18n } from 'vue-i18n'
-import { useToast } from '../../../composables/useToast'
+import { useToast } from '../../composables/useToast'
 
 definePageMeta({ middleware: 'auth', layout: 'dashboard' })
 useSeoMeta({ title: 'Support — Admin findMe' })
@@ -102,8 +102,8 @@ const resolve = async (id: string) => {
       headers: tok ? { Authorization: `Bearer ${tok}` } : {},
       body: { status: 'resolved' },
     })
-    const t = tickets.value.find(t => t.id === id)
-    if (t) t.status = 'resolved'
+    const ticket = tickets.value.find(tk => tk.id === id)
+    if (ticket) ticket.status = 'resolved'
     showToast(t('admin.ticket_mark_resolved_success'), 'success')
   } catch {
     showToast(t('errors.network'), 'error')

@@ -53,6 +53,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { clearError } from 'nuxt/app'
 
 const props = defineProps<{ error: { statusCode?: number; message?: string } | null }>()
 

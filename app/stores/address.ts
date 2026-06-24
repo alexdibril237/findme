@@ -65,7 +65,7 @@ export const useAddressStore = defineStore('address', () => {
   const remaining = computed(() => limit - addresses.value.length)
   const verifiedAddresses = computed(() => addresses.value.filter(a => a.status === 'verified'))
 
-  const getHeaders = () => {
+  const getHeaders = (): Record<string, string> => {
     if (!process.client) return {}
     const tok = localStorage.getItem('findme_token')
     return tok ? { Authorization: `Bearer ${tok}` } : {}
