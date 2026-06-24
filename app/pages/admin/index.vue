@@ -293,19 +293,60 @@ onMounted(async () => {
     stats.value = { totalUsers: 25432, newMonth: 1240, totalAddresses: 70215, verifiedMonth: 3400, openTickets: 28, resolvedMonth: 142 }
   } finally { statsLoading.value = false }
 
-  // Utilisateurs
+  // Utilisateurs — API mock + utilisateurs créés localement
   try {
     const r = await $fetch<any>(`${config.public.apiBase}/admin/users?page=1&limit=50`, { headers })
     users.value = r?.data?.users || []
   } catch { users.value = [] }
   finally { usersLoading.value = false }
 
-  // Adresses
+  // Fusionner avec les comptes créés localement (localStorage)
+  if (process.client) {
+    try {
+      const localRaw = localStorage.getItem('findme_local_users')
+      const localUsers: any[] = localRaw ? JSON.parse(localRaw) : []
+      const apiIds = new Set(users.value.map((u: any) => u.email))
+      const newLocals = localUsers
+        .filter(u => !apiIds.has(u.email))
+        .map(u => ({
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          role: u.role || 'user',
+          city: '',
+          addressCount: 0,
+          createdAt: new Date().toISOString(),
+        }))
+      users.value = [...users.value, ...newLocals]
+    } catch {}
+  }
+
+  // Adresses — API mock + adresses créées localement
   try {
     const r = await $fetch<any>(`${config.public.apiBase}/admin/addresses?page=1&limit=50`, { headers })
     addresses.value = r?.data?.addresses || []
   } catch { addresses.value = [] }
   finally { addrLoading.value = false }
+
+  // Fusionner avec les adresses créées localement
+  if (process.client) {
+    try {
+      const localUsersRaw = localStorage.getItem('findme_local_users')
+      const localUsers: any[] = localUsersRaw ? JSON.parse(localUsersRaw) : []
+      const apiAddrIds = new Set(addresses.value.map((a: any) => a.id))
+      const localAddrs: any[] = []
+      for (const u of localUsers) {
+        const key = `findme_addresses_${u.id}`
+        const raw = localStorage.getItem(key)
+        if (!raw) continue
+        const addrs: any[] = JSON.parse(raw)
+        addrs.forEach(a => {
+          if (!apiAddrIds.has(a.id)) localAddrs.push(a)
+        })
+      }
+      addresses.value = [...addresses.value, ...localAddrs]
+    } catch {}
+  }
 })
 
 // ── Filtres utilisateurs ───────────────────────────────────
