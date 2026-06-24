@@ -1,0 +1,44 @@
+{
+  "addresses": [
+    {
+      "id": "addr_001",
+      "userId": "usr_001",
+      "label": "Domicile",
+      "street": "Rue Alfred Saker",
+      "neighborhood": "Akwa",
+      "city": "Douala",
+      "country": "Cameroun",
+      "countryCode": "CM",
+      "houseNumber": "123",
+      "status": "verified",
+      "addressCode": "FM 4872 AKWA",
+      "photo": null,
+      "gps": {
+        "latitude": 4.0511,
+        "longitude": 9.7679
+      },
+      "createdAt": "2024-03-10T10:00:00.000Z",
+      "updatedAt": "2024-03-10T10:00:00.000Z"
+    },
+    {
+      "id": "addr_002",
+      "userId": "usr_001",
+      "label": "Bureau",
+      "street": "Avenue Kennedy",
+      "neighborhood": "Bonanjo",
+      "city": "Douala",
+      "country": "Cameroun",
+      "countryCode": "CM",
+      "houseNumber": "456",
+      "status": "pending",
+      "addressCode": "FM 2341 BONA",
+      "photo": null,
+      "gps": {
+        "latitude": 4.0445,
+        "longitude": 9.7398
+      },
+      "createdAt": "2024-04-05T14:30:00.000Z",
+      "updatedAt": "2024-04-05T14:30:00.000Z"
+    }
+  ]
+}

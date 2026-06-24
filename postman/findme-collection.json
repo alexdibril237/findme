@@ -1,0 +1,855 @@
+{
+  "info": {
+    "name": "findMe API",
+    "_postman_id": "findme-api-collection",
+    "description": "Collection findMe — GeoLink Africa (DHI Academy Projet 4)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Inscription",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jean Dupont\",\n  \"email\": \"jean.dupont@example.com\",\n  \"password\": \"Password1\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/signup", "host": ["{{baseUrl}}"], "path": ["auth", "signup"] }
+          },
+          "response": [
+            {
+              "name": "200 — Compte créé",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"name\": \"Jean Dupont\",\n  \"email\": \"jean.dupont@example.com\",\n  \"password\": \"Password1\"\n}" },
+                "url": { "raw": "{{baseUrl}}/auth/signup", "host": ["{{baseUrl}}"], "path": ["auth", "signup"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Compte créé avec succès\",\n  \"data\": {\n    \"user\": {\n      \"id\": \"usr_001\",\n      \"name\": \"Jean Dupont\",\n      \"email\": \"jean.dupont@example.com\",\n      \"role\": \"user\",\n      \"city\": \"Douala\",\n      \"createdAt\": \"2024-01-15T08:00:00.000Z\"\n    },\n    \"token\": \"mock_token_abc123xyz\"\n  }\n}"
+            },
+            {
+              "name": "400 — Champs manquants",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"jean.dupont@example.com\"\n}" },
+                "url": { "raw": "{{baseUrl}}/auth/signup", "host": ["{{baseUrl}}"], "path": ["auth", "signup"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Champs obligatoires manquants\",\n  \"error\": {\n    \"code\": \"MISSING_FIELDS\",\n    \"details\": \"Les champs name, email et password sont requis\"\n  }\n}"
+            },
+            {
+              "name": "409 — Email déjà utilisé",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"name\": \"Jean Dupont\",\n  \"email\": \"jean.dupont@example.com\",\n  \"password\": \"Password1\"\n}" },
+                "url": { "raw": "{{baseUrl}}/auth/signup", "host": ["{{baseUrl}}"], "path": ["auth", "signup"] }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Cet email est déjà utilisé\",\n  \"error\": {\n    \"code\": \"EMAIL_ALREADY_EXISTS\",\n    \"details\": \"Un compte existe déjà avec l'adresse jean.dupont@example.com\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Connexion",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jean.dupont@example.com\",\n  \"password\": \"Password1\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          },
+          "response": [
+            {
+              "name": "200 — Connexion réussie",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"jean.dupont@example.com\",\n  \"password\": \"Password1\"\n}" },
+                "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Connexion réussie\",\n  \"data\": {\n    \"user\": {\n      \"id\": \"usr_001\",\n      \"name\": \"Jean Dupont\",\n      \"email\": \"jean.dupont@example.com\",\n      \"role\": \"user\",\n      \"city\": \"Douala\",\n      \"createdAt\": \"2024-01-15T08:00:00.000Z\"\n    },\n    \"token\": \"mock_token_abc123xyz\"\n  }\n}"
+            },
+            {
+              "name": "400 — Champs manquants",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"jean.dupont@example.com\"\n}" },
+                "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Champs obligatoires manquants\",\n  \"error\": {\n    \"code\": \"MISSING_FIELDS\",\n    \"details\": \"Les champs email et password sont requis\"\n  }\n}"
+            },
+            {
+              "name": "401 — Identifiants invalides",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"jean.dupont@example.com\",\n  \"password\": \"mauvais_mdp\"\n}" },
+                "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Email ou mot de passe incorrect\",\n  \"error\": {\n    \"code\": \"INVALID_CREDENTIALS\",\n    \"details\": \"Vérifiez vos identifiants et réessayez\"\n  }\n}"
+            },
+            {
+              "name": "403 — Compte désactivé",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"banned@example.com\",\n  \"password\": \"Password1\"\n}" },
+                "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Compte désactivé. Contactez le support.\",\n  \"error\": {\n    \"code\": \"ACCOUNT_DISABLED\",\n    \"details\": \"Ce compte a été suspendu par un administrateur\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Mot de passe oublié",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"jean.dupont@example.com\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/forgot-password", "host": ["{{baseUrl}}"], "path": ["auth", "forgot-password"] }
+          },
+          "response": [
+            {
+              "name": "200 — Email envoyé",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"jean.dupont@example.com\"\n}" },
+                "url": { "raw": "{{baseUrl}}/auth/forgot-password", "host": ["{{baseUrl}}"], "path": ["auth", "forgot-password"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Email de réinitialisation envoyé. Vérifiez votre boîte mail.\"\n}"
+            },
+            {
+              "name": "400 — Email manquant",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{}" },
+                "url": { "raw": "{{baseUrl}}/auth/forgot-password", "host": ["{{baseUrl}}"], "path": ["auth", "forgot-password"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"L'adresse email est requise\",\n  \"error\": {\n    \"code\": \"MISSING_FIELDS\",\n    \"details\": \"Le champ email est obligatoire\"\n  }\n}"
+            },
+            {
+              "name": "404 — Email introuvable",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"inconnu@example.com\"\n}" },
+                "url": { "raw": "{{baseUrl}}/auth/forgot-password", "host": ["{{baseUrl}}"], "path": ["auth", "forgot-password"] }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Aucun compte associé à cet email\",\n  \"error\": {\n    \"code\": \"USER_NOT_FOUND\",\n    \"details\": \"L'adresse inconnu@example.com n'est liée à aucun compte\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Déconnexion",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }
+            ],
+            "url": { "raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth", "logout"] }
+          },
+          "response": [
+            {
+              "name": "200 — Déconnexion réussie",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }
+                ],
+                "url": { "raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth", "logout"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Déconnexion réussie\"\n}"
+            },
+            {
+              "name": "401 — Token absent ou invalide",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth", "logout"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Token d'authentification manquant ou invalide\",\n  \"error\": {\n    \"code\": \"UNAUTHORIZED\",\n    \"details\": \"Fournissez un Bearer token valide dans le header Authorization\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Adresses",
+      "item": [
+        {
+          "name": "Liste des adresses",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }],
+            "url": { "raw": "{{baseUrl}}/addresses", "host": ["{{baseUrl}}"], "path": ["addresses"] }
+          },
+          "response": [
+            {
+              "name": "200 — Liste récupérée",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }],
+                "url": { "raw": "{{baseUrl}}/addresses", "host": ["{{baseUrl}}"], "path": ["addresses"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"addresses\": [\n      {\n        \"id\": \"addr_001\",\n        \"label\": \"Domicile\",\n        \"street\": \"Rue Alfred Saker\",\n        \"neighborhood\": \"Akwa\",\n        \"city\": \"Douala\",\n        \"country\": \"Cameroun\",\n        \"status\": \"verified\",\n        \"addressCode\": \"FM 4872 AKWA\",\n        \"photo\": null,\n        \"createdAt\": \"2024-03-10T10:00:00.000Z\"\n      },\n      {\n        \"id\": \"addr_002\",\n        \"label\": \"Bureau\",\n        \"street\": \"Avenue Kennedy\",\n        \"neighborhood\": \"Bonanjo\",\n        \"city\": \"Douala\",\n        \"country\": \"Cameroun\",\n        \"status\": \"pending\",\n        \"addressCode\": \"FM 2341 BONA\",\n        \"photo\": null,\n        \"createdAt\": \"2024-04-05T14:30:00.000Z\"\n      }\n    ],\n    \"total\": 2,\n    \"limit\": 4,\n    \"remaining\": 2\n  }\n}"
+            },
+            {
+              "name": "401 — Non authentifié",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/addresses", "host": ["{{baseUrl}}"], "path": ["addresses"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Authentification requise\",\n  \"error\": {\n    \"code\": \"UNAUTHORIZED\",\n    \"details\": \"Fournissez un Bearer token valide dans le header Authorization\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Créer une adresse",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Domicile\",\n  \"street\": \"Rue Alfred Saker\",\n  \"neighborhood\": \"Akwa\",\n  \"city\": \"Douala\",\n  \"country\": \"Cameroun\",\n  \"latitude\": 4.0511,\n  \"longitude\": 9.7679\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/addresses", "host": ["{{baseUrl}}"], "path": ["addresses"] }
+          },
+          "response": [
+            {
+              "name": "200 — Adresse créée",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }
+                ],
+                "body": { "mode": "raw", "raw": "{\n  \"label\": \"Domicile\",\n  \"street\": \"Rue Alfred Saker\",\n  \"neighborhood\": \"Akwa\",\n  \"city\": \"Douala\",\n  \"country\": \"Cameroun\",\n  \"latitude\": 4.0511,\n  \"longitude\": 9.7679\n}" },
+                "url": { "raw": "{{baseUrl}}/addresses", "host": ["{{baseUrl}}"], "path": ["addresses"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Adresse créée avec succès\",\n  \"data\": {\n    \"id\": \"addr_003\",\n    \"label\": \"Domicile\",\n    \"street\": \"Rue Alfred Saker\",\n    \"neighborhood\": \"Akwa\",\n    \"city\": \"Douala\",\n    \"country\": \"Cameroun\",\n    \"status\": \"pending\",\n    \"addressCode\": \"FM 7335 AKWA\",\n    \"photo\": null,\n    \"createdAt\": \"2024-06-17T10:00:00.000Z\"\n  }\n}"
+            },
+            {
+              "name": "400 — Champs manquants",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }
+                ],
+                "body": { "mode": "raw", "raw": "{\n  \"label\": \"Domicile\"\n}" },
+                "url": { "raw": "{{baseUrl}}/addresses", "host": ["{{baseUrl}}"], "path": ["addresses"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Données d'adresse incomplètes\",\n  \"error\": {\n    \"code\": \"MISSING_FIELDS\",\n    \"details\": \"Les champs street, neighborhood, city et country sont requis\"\n  }\n}"
+            },
+            {
+              "name": "401 — Non authentifié",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"label\": \"Domicile\",\n  \"street\": \"Rue Alfred Saker\",\n  \"neighborhood\": \"Akwa\",\n  \"city\": \"Douala\",\n  \"country\": \"Cameroun\"\n}" },
+                "url": { "raw": "{{baseUrl}}/addresses", "host": ["{{baseUrl}}"], "path": ["addresses"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Authentification requise\",\n  \"error\": {\n    \"code\": \"UNAUTHORIZED\",\n    \"details\": \"Fournissez un Bearer token valide dans le header Authorization\"\n  }\n}"
+            },
+            {
+              "name": "403 — Limite de 4 adresses atteinte",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }
+                ],
+                "body": { "mode": "raw", "raw": "{\n  \"label\": \"5ème adresse\",\n  \"street\": \"Rue test\",\n  \"neighborhood\": \"Centre\",\n  \"city\": \"Douala\",\n  \"country\": \"Cameroun\"\n}" },
+                "url": { "raw": "{{baseUrl}}/addresses", "host": ["{{baseUrl}}"], "path": ["addresses"] }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Limite de 4 adresses atteinte\",\n  \"error\": {\n    \"code\": \"ADDRESS_LIMIT_REACHED\",\n    \"details\": \"Vous avez atteint la limite de 4 adresses. Supprimez une adresse existante pour en créer une nouvelle.\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Modifier une adresse",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Domicile (modifié)\",\n  \"street\": \"Rue Alfred Saker\",\n  \"neighborhood\": \"Akwa\",\n  \"city\": \"Douala\",\n  \"country\": \"Cameroun\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/addresses/:id", "host": ["{{baseUrl}}"], "path": ["addresses", ":id"], "variable": [{ "key": "id", "value": "addr_001" }] }
+          },
+          "response": [
+            {
+              "name": "200 — Adresse mise à jour",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }
+                ],
+                "body": { "mode": "raw", "raw": "{\n  \"label\": \"Domicile (modifié)\",\n  \"street\": \"Rue Alfred Saker\",\n  \"neighborhood\": \"Akwa\",\n  \"city\": \"Douala\",\n  \"country\": \"Cameroun\"\n}" },
+                "url": { "raw": "{{baseUrl}}/addresses/:id", "host": ["{{baseUrl}}"], "path": ["addresses", ":id"], "variable": [{ "key": "id", "value": "addr_001" }] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Adresse mise à jour\",\n  \"data\": {\n    \"id\": \"addr_001\",\n    \"label\": \"Domicile (modifié)\",\n    \"street\": \"Rue Alfred Saker\",\n    \"neighborhood\": \"Akwa\",\n    \"city\": \"Douala\",\n    \"country\": \"Cameroun\",\n    \"status\": \"pending\",\n    \"updatedAt\": \"2024-06-17T12:00:00.000Z\"\n  }\n}"
+            },
+            {
+              "name": "401 — Non authentifié",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"label\": \"Domicile\"\n}" },
+                "url": { "raw": "{{baseUrl}}/addresses/:id", "host": ["{{baseUrl}}"], "path": ["addresses", ":id"], "variable": [{ "key": "id", "value": "addr_001" }] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Authentification requise\",\n  \"error\": {\n    \"code\": \"UNAUTHORIZED\",\n    \"details\": \"Fournissez un Bearer token valide dans le header Authorization\"\n  }\n}"
+            },
+            {
+              "name": "403 — Modification non autorisée",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer autre_token" }
+                ],
+                "body": { "mode": "raw", "raw": "{\n  \"label\": \"Hack\"\n}" },
+                "url": { "raw": "{{baseUrl}}/addresses/:id", "host": ["{{baseUrl}}"], "path": ["addresses", ":id"], "variable": [{ "key": "id", "value": "addr_001" }] }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Accès refusé\",\n  \"error\": {\n    \"code\": \"FORBIDDEN\",\n    \"details\": \"Vous n'êtes pas autorisé à modifier cette adresse\"\n  }\n}"
+            },
+            {
+              "name": "404 — Adresse introuvable",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }
+                ],
+                "body": { "mode": "raw", "raw": "{\n  \"label\": \"Test\"\n}" },
+                "url": { "raw": "{{baseUrl}}/addresses/:id", "host": ["{{baseUrl}}"], "path": ["addresses", ":id"], "variable": [{ "key": "id", "value": "addr_999" }] }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Adresse introuvable\",\n  \"error\": {\n    \"code\": \"ADDRESS_NOT_FOUND\",\n    \"details\": \"Aucune adresse avec l'identifiant addr_999\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Supprimer une adresse",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }],
+            "url": { "raw": "{{baseUrl}}/addresses/:id", "host": ["{{baseUrl}}"], "path": ["addresses", ":id"], "variable": [{ "key": "id", "value": "addr_001" }] }
+          },
+          "response": [
+            {
+              "name": "200 — Adresse supprimée",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [{ "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }],
+                "url": { "raw": "{{baseUrl}}/addresses/:id", "host": ["{{baseUrl}}"], "path": ["addresses", ":id"], "variable": [{ "key": "id", "value": "addr_001" }] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Adresse addr_001 supprimée avec succès\"\n}"
+            },
+            {
+              "name": "401 — Non authentifié",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/addresses/:id", "host": ["{{baseUrl}}"], "path": ["addresses", ":id"], "variable": [{ "key": "id", "value": "addr_001" }] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Authentification requise\",\n  \"error\": {\n    \"code\": \"UNAUTHORIZED\",\n    \"details\": \"Fournissez un Bearer token valide dans le header Authorization\"\n  }\n}"
+            },
+            {
+              "name": "404 — Adresse introuvable",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [{ "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }],
+                "url": { "raw": "{{baseUrl}}/addresses/:id", "host": ["{{baseUrl}}"], "path": ["addresses", ":id"], "variable": [{ "key": "id", "value": "addr_999" }] }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Adresse introuvable\",\n  \"error\": {\n    \"code\": \"ADDRESS_NOT_FOUND\",\n    \"details\": \"Aucune adresse avec l'identifiant addr_999\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }],
+            "url": { "raw": "{{baseUrl}}/admin/dashboard", "host": ["{{baseUrl}}"], "path": ["admin", "dashboard"] }
+          },
+          "response": [
+            {
+              "name": "200 — Statistiques",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }],
+                "url": { "raw": "{{baseUrl}}/admin/dashboard", "host": ["{{baseUrl}}"], "path": ["admin", "dashboard"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"users\": { \"total\": 25432, \"newThisMonth\": 1240 },\n    \"addresses\": { \"total\": 70215, \"verifiedThisMonth\": 3400 },\n    \"support\": { \"open\": 28, \"resolvedThisMonth\": 142 }\n  }\n}"
+            },
+            {
+              "name": "401 — Non authentifié",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/admin/dashboard", "host": ["{{baseUrl}}"], "path": ["admin", "dashboard"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Authentification requise\",\n  \"error\": {\n    \"code\": \"UNAUTHORIZED\",\n    \"details\": \"Fournissez un Bearer token valide dans le header Authorization\"\n  }\n}"
+            },
+            {
+              "name": "403 — Accès admin refusé",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer token_user_non_admin" }],
+                "url": { "raw": "{{baseUrl}}/admin/dashboard", "host": ["{{baseUrl}}"], "path": ["admin", "dashboard"] }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Accès réservé aux administrateurs\",\n  \"error\": {\n    \"code\": \"FORBIDDEN\",\n    \"details\": \"Votre compte n'a pas les droits administrateur\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Liste utilisateurs",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }],
+            "url": { "raw": "{{baseUrl}}/admin/users?page=1&limit=50", "host": ["{{baseUrl}}"], "path": ["admin", "users"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "50" }] }
+          },
+          "response": [
+            {
+              "name": "200 — Liste utilisateurs",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }],
+                "url": { "raw": "{{baseUrl}}/admin/users?page=1&limit=50", "host": ["{{baseUrl}}"], "path": ["admin", "users"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "50" }] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"users\": [\n      { \"id\": \"usr_001\", \"name\": \"Jean Dupont\", \"email\": \"jean.dupont@example.com\", \"role\": \"user\", \"city\": \"Douala\", \"addressCount\": 2, \"createdAt\": \"2024-01-15T08:00:00.000Z\" },\n      { \"id\": \"usr_002\", \"name\": \"Aïcha Toubé\", \"email\": \"aicha.toube@example.com\", \"role\": \"user\", \"city\": \"Yaoundé\", \"addressCount\": 1, \"createdAt\": \"2024-02-20T10:30:00.000Z\" },\n      { \"id\": \"usr_003\", \"name\": \"Paul Biya Jr\", \"email\": \"paul.biya@example.com\", \"role\": \"user\", \"city\": \"Bafoussam\", \"addressCount\": 3, \"createdAt\": \"2024-03-05T09:00:00.000Z\" },\n      { \"id\": \"usr_004\", \"name\": \"Admin findMe\", \"email\": \"admin@findme.cm\", \"role\": \"admin\", \"city\": \"Douala\", \"addressCount\": 0, \"createdAt\": \"2023-12-01T00:00:00.000Z\" }\n    ],\n    \"total\": 4\n  }\n}"
+            },
+            {
+              "name": "401 — Non authentifié",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/admin/users", "host": ["{{baseUrl}}"], "path": ["admin", "users"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Authentification requise\",\n  \"error\": {\n    \"code\": \"UNAUTHORIZED\",\n    \"details\": \"Fournissez un Bearer token valide dans le header Authorization\"\n  }\n}"
+            },
+            {
+              "name": "403 — Accès admin refusé",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer token_user_non_admin" }],
+                "url": { "raw": "{{baseUrl}}/admin/users", "host": ["{{baseUrl}}"], "path": ["admin", "users"] }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Accès réservé aux administrateurs\",\n  \"error\": {\n    \"code\": \"FORBIDDEN\",\n    \"details\": \"Votre compte n'a pas les droits administrateur\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Liste adresses (admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }],
+            "url": { "raw": "{{baseUrl}}/admin/addresses?page=1&limit=50", "host": ["{{baseUrl}}"], "path": ["admin", "addresses"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "50" }] }
+          },
+          "response": [
+            {
+              "name": "200 — Liste adresses",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }],
+                "url": { "raw": "{{baseUrl}}/admin/addresses?page=1&limit=50", "host": ["{{baseUrl}}"], "path": ["admin", "addresses"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "50" }] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"addresses\": [\n      { \"id\": \"addr_001\", \"label\": \"Domicile\", \"street\": \"Rue Alfred Saker\", \"neighborhood\": \"Akwa\", \"city\": \"Douala\", \"country\": \"Cameroun\", \"status\": \"verified\", \"addressCode\": \"FM 4872 AKWA\", \"createdAt\": \"2024-03-10T10:00:00.000Z\" },\n      { \"id\": \"addr_002\", \"label\": \"Bureau\", \"street\": \"Avenue Kennedy\", \"neighborhood\": \"Bonanjo\", \"city\": \"Douala\", \"country\": \"Cameroun\", \"status\": \"pending\", \"addressCode\": \"FM 2341 BONA\", \"createdAt\": \"2024-04-05T14:30:00.000Z\" },\n      { \"id\": \"addr_003\", \"label\": \"Résidence\", \"street\": \"Rue Mvolyé\", \"neighborhood\": \"Mvolyé\", \"city\": \"Yaoundé\", \"country\": \"Cameroun\", \"status\": \"draft\", \"addressCode\": \"FM 8810 MVOL\", \"createdAt\": \"2024-05-01T09:00:00.000Z\" }\n    ],\n    \"total\": 3\n  }\n}"
+            },
+            {
+              "name": "401 — Non authentifié",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/admin/addresses", "host": ["{{baseUrl}}"], "path": ["admin", "addresses"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Authentification requise\",\n  \"error\": {\n    \"code\": \"UNAUTHORIZED\",\n    \"details\": \"Fournissez un Bearer token valide dans le header Authorization\"\n  }\n}"
+            },
+            {
+              "name": "403 — Accès admin refusé",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer token_user_non_admin" }],
+                "url": { "raw": "{{baseUrl}}/admin/addresses", "host": ["{{baseUrl}}"], "path": ["admin", "addresses"] }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Accès réservé aux administrateurs\",\n  \"error\": {\n    \"code\": \"FORBIDDEN\",\n    \"details\": \"Votre compte n'a pas les droits administrateur\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Tickets support (admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }],
+            "url": { "raw": "{{baseUrl}}/admin/support?page=1&limit=50", "host": ["{{baseUrl}}"], "path": ["admin", "support"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "50" }] }
+          },
+          "response": [
+            {
+              "name": "200 — Liste tickets",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }],
+                "url": { "raw": "{{baseUrl}}/admin/support?page=1&limit=50", "host": ["{{baseUrl}}"], "path": ["admin", "support"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "50" }] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"tickets\": [\n      { \"id\": \"tkt_001\", \"name\": \"Jean Dupont\", \"email\": \"jean.dupont@example.com\", \"message\": \"Je n'arrive pas à générer mon PDF.\", \"status\": \"open\", \"createdAt\": \"2024-06-10T09:15:00.000Z\" },\n      { \"id\": \"tkt_002\", \"name\": \"Aïcha Toubé\", \"email\": \"aicha.toube@example.com\", \"message\": \"Mon adresse est vérifiée mais je ne reçois pas la confirmation.\", \"status\": \"resolved\", \"createdAt\": \"2024-06-08T14:00:00.000Z\" }\n    ],\n    \"total\": 2\n  }\n}"
+            },
+            {
+              "name": "401 — Non authentifié",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/admin/support", "host": ["{{baseUrl}}"], "path": ["admin", "support"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Authentification requise\",\n  \"error\": {\n    \"code\": \"UNAUTHORIZED\",\n    \"details\": \"Fournissez un Bearer token valide dans le header Authorization\"\n  }\n}"
+            },
+            {
+              "name": "403 — Accès admin refusé",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer token_user_non_admin" }],
+                "url": { "raw": "{{baseUrl}}/admin/support", "host": ["{{baseUrl}}"], "path": ["admin", "support"] }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Accès réservé aux administrateurs\",\n  \"error\": {\n    \"code\": \"FORBIDDEN\",\n    \"details\": \"Votre compte n'a pas les droits administrateur\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Résoudre un ticket",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"resolved\"\n}" },
+            "url": { "raw": "{{baseUrl}}/admin/support/:id/status", "host": ["{{baseUrl}}"], "path": ["admin", "support", ":id", "status"], "variable": [{ "key": "id", "value": "tkt_001" }] }
+          },
+          "response": [
+            {
+              "name": "200 — Statut mis à jour",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }
+                ],
+                "body": { "mode": "raw", "raw": "{\n  \"status\": \"resolved\"\n}" },
+                "url": { "raw": "{{baseUrl}}/admin/support/:id/status", "host": ["{{baseUrl}}"], "path": ["admin", "support", ":id", "status"], "variable": [{ "key": "id", "value": "tkt_001" }] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Statut mis à jour\",\n  \"data\": { \"id\": \"tkt_001\", \"status\": \"resolved\" }\n}"
+            },
+            {
+              "name": "400 — Statut invalide",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }
+                ],
+                "body": { "mode": "raw", "raw": "{\n  \"status\": \"invalide\"\n}" },
+                "url": { "raw": "{{baseUrl}}/admin/support/:id/status", "host": ["{{baseUrl}}"], "path": ["admin", "support", ":id", "status"], "variable": [{ "key": "id", "value": "tkt_001" }] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Statut invalide\",\n  \"error\": {\n    \"code\": \"INVALID_STATUS\",\n    \"details\": \"Les valeurs acceptées sont : open, resolved\"\n  }\n}"
+            },
+            {
+              "name": "401 — Non authentifié",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"status\": \"resolved\"\n}" },
+                "url": { "raw": "{{baseUrl}}/admin/support/:id/status", "host": ["{{baseUrl}}"], "path": ["admin", "support", ":id", "status"], "variable": [{ "key": "id", "value": "tkt_001" }] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Authentification requise\",\n  \"error\": {\n    \"code\": \"UNAUTHORIZED\",\n    \"details\": \"Fournissez un Bearer token valide dans le header Authorization\"\n  }\n}"
+            },
+            {
+              "name": "403 — Accès admin refusé",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer token_user_non_admin" }
+                ],
+                "body": { "mode": "raw", "raw": "{\n  \"status\": \"resolved\"\n}" },
+                "url": { "raw": "{{baseUrl}}/admin/support/:id/status", "host": ["{{baseUrl}}"], "path": ["admin", "support", ":id", "status"], "variable": [{ "key": "id", "value": "tkt_001" }] }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Accès réservé aux administrateurs\",\n  \"error\": {\n    \"code\": \"FORBIDDEN\",\n    \"details\": \"Votre compte n'a pas les droits administrateur\"\n  }\n}"
+            },
+            {
+              "name": "404 — Ticket introuvable",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer mock_token_abc123xyz" }
+                ],
+                "body": { "mode": "raw", "raw": "{\n  \"status\": \"resolved\"\n}" },
+                "url": { "raw": "{{baseUrl}}/admin/support/:id/status", "host": ["{{baseUrl}}"], "path": ["admin", "support", ":id", "status"], "variable": [{ "key": "id", "value": "tkt_999" }] }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Ticket introuvable\",\n  \"error\": {\n    \"code\": \"TICKET_NOT_FOUND\",\n    \"details\": \"Aucun ticket avec l'identifiant tkt_999\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Support",
+      "item": [
+        {
+          "name": "Envoyer un message",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jean Dupont\",\n  \"email\": \"jean.dupont@example.com\",\n  \"message\": \"J'ai un problème avec mon adresse.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/support/messages", "host": ["{{baseUrl}}"], "path": ["support", "messages"] }
+          },
+          "response": [
+            {
+              "name": "200 — Message envoyé",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"name\": \"Jean Dupont\",\n  \"email\": \"jean.dupont@example.com\",\n  \"message\": \"J'ai un problème avec mon adresse.\"\n}" },
+                "url": { "raw": "{{baseUrl}}/support/messages", "host": ["{{baseUrl}}"], "path": ["support", "messages"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Message envoyé. Notre équipe vous répondra sous 24h.\",\n  \"data\": { \"ticketId\": \"tkt_003\" }\n}"
+            },
+            {
+              "name": "400 — Champs manquants",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"name\": \"Jean Dupont\"\n}" },
+                "url": { "raw": "{{baseUrl}}/support/messages", "host": ["{{baseUrl}}"], "path": ["support", "messages"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Informations manquantes\",\n  \"error\": {\n    \"code\": \"MISSING_FIELDS\",\n    \"details\": \"Les champs name, email et message sont requis\"\n  }\n}"
+            },
+            {
+              "name": "429 — Trop de messages",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"name\": \"Jean Dupont\",\n  \"email\": \"jean.dupont@example.com\",\n  \"message\": \"Encore un message...\"\n}" },
+                "url": { "raw": "{{baseUrl}}/support/messages", "host": ["{{baseUrl}}"], "path": ["support", "messages"] }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Trop de messages envoyés\",\n  \"error\": {\n    \"code\": \"RATE_LIMIT_EXCEEDED\",\n    \"details\": \"Limite de 3 messages par heure atteinte. Réessayez plus tard.\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://9725ef3d-56af-48c2-8d75-ae7f3cb67d1f.mock.pstmn.io",
+      "type": "string"
+    }
+  ]
+}
